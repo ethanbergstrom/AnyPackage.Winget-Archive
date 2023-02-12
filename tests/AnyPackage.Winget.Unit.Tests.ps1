@@ -33,7 +33,7 @@ Describe 'pipeline-based package installation and uninstallation' {
 		It 'searches for and silently installs the latest version of a package' {
 			Find-Package -Name $package | Install-Package -PassThru | Where-Object {$_.Name -contains $package} | Should -Not -BeNullOrEmpty
 		}
-		It 'finds and silently uninstalls the locally installed package just installed' {
+		It 'detects and silently uninstalls the locally installed package just installed' {
 			Get-Package -Name $package | Uninstall-Package -PassThru | Where-Object {$_.Name -contains $package} | Should -Not -BeNullOrEmpty
 		}
 	}
@@ -58,7 +58,7 @@ Describe 'multi-source support' {
 	It 'searches for and installs the latest version of a package from an alternate source' {
 		Find-Package -Name $package -source $altSource | Install-Package -PassThru | Where-Object {$_.Name -contains $package} | Should -Not -BeNullOrEmpty
 	}
-	It 'finds and uninstalls a package installed from an alternate source' {
+	It 'detects and uninstalls a package installed from an alternate source' {
 		Get-Package -Name $package | Uninstall-Package -PassThru | Where-Object {$_.Name -contains $package} | Should -Not -BeNullOrEmpty
 	}
 	It 'unregisters an alternative package source' {
@@ -81,7 +81,7 @@ Describe 'version filters' {
 		It 'searches for and silently installs a specific package version' {
 			Find-Package -Name $package -Version "[$version]" | Install-Package -PassThru | Where-Object {$_.Name -contains $package -And $_.Version -eq $version} | Should -Not -BeNullOrEmpty
 		}
-		It 'finds and silently uninstalls a specific package version' {
+		It 'detects and silently uninstalls a specific package version' {
 			Get-Package -Name $package -Version "[$version]" | UnInstall-Package -PassThru | Where-Object {$_.Name -contains $package -And $_.Version -eq $version} | Should -Not -BeNullOrEmpty
 		}
 	}
@@ -90,7 +90,7 @@ Describe 'version filters' {
 		It 'searches for and silently installs a minimum package version' {
 			Find-Package -Name $package -Version $version | Install-Package -PassThru | Where-Object {$_.Name -contains $package -And $_.Version -ge $version} | Should -Not -BeNullOrEmpty
 		}
-		It 'finds and silently uninstalls a minimum package version' {
+		It 'detects and silently uninstalls a minimum package version' {
 			Get-Package -Name $package -Version $version | UnInstall-Package -PassThru | Where-Object {$_.Name -contains $package -And $_.Version -ge $version} | Should -Not -BeNullOrEmpty
 		}
 	}
@@ -99,7 +99,7 @@ Describe 'version filters' {
 		It 'searches for and silently installs a maximum package version' {
 			Find-Package -Name $package -Version "[,$version]" | Install-Package -PassThru | Where-Object {$_.Name -contains $package -And $_.Version -le $version} | Should -Not -BeNullOrEmpty
 		}
-		It 'finds and silently uninstalls a maximum package version' {
+		It 'detects and silently uninstalls a maximum package version' {
 			Get-Package -Name $package -Version "[,$version]" | UnInstall-Package -PassThru | Where-Object {$_.Name -contains $package -And $_.Version -le $version} | Should -Not -BeNullOrEmpty
 		}
 	}
