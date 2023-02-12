@@ -49,8 +49,12 @@ class WingetProvider : PackageProvider, IGetSource, ISetSource, IGetPackage, IFi
 	}
 
 	[void] UninstallPackage([PackageRequest] $Request) {
-		# Run the package request first through Get-WingetPackage to filter by any version requirements
-		Get-WingetPackage | Cobalt\Uninstall-WingetPackage | Write-Package
+		# Run the package request first through Get-WingetPackage to filter by any version requirements and save it off for later use
+		$result = Get-WingetPackage
+		Cobalt\Uninstall-WingetPackage $result
+		
+		# Winget doesn't return any output on successful uninstallation, so we have to make up a new object to satisfy AnyPackage
+		Write-Package $result
 	}
 }
 
