@@ -56,8 +56,9 @@ function Find-WingetPackage {
 				Expression = {$package.Source}
 			}
 		} else {
+			$package = $_
 			# Winget doesn't return source information when source is specified, so we have to construct a fresh object here with the source information included
-			Select-Object -Property @{
+			$package | Select-Object -Property @{
 				Name = 'ID'
 				Expression = {$_.ID}
 			},@{
