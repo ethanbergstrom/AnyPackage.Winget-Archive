@@ -59,12 +59,14 @@ function Find-WingetPackage {
 			$_
 		}
 	} | Where-Object {$Request.IsMatch($_.ID)} |
-			Where-Object {-Not $Request.Version -Or (([NuGet.Versioning.VersionRange]$Request.Version).Satisfies($_.Version))} | Group-Object ID |
-				Select-Object ID,@{
-						Name = 'Version'
-						Expression = {$_.Group | Sort-Object -Descending Version | Select-Object -First 1 -ExpandProperty Version}
-					},@{
-						Name = 'Source'
-						Expression = {$selectedSource}
-					}
+			Where-Object {-Not $Request.Version -Or (([NuGet.Versioning.VersionRange]$Request.Version).Satisfies($_.Version))}
+			# Commenting out to test if it's causing an issue
+			# | Group-Object ID |
+			# 	Select-Object ID,@{
+			# 			Name = 'Version'
+			# 			Expression = {$_.Group | Sort-Object -Descending Version | Select-Object -First 1 -ExpandProperty Version}
+			# 		},@{
+			# 			Name = 'Source'
+			# 			Expression = {$selectedSource}
+			# 		}
 }
