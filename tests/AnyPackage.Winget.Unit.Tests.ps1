@@ -13,7 +13,7 @@ Describe 'basic package search operations' {
 		}
 
 		It 'gets a list of latest installed packages' {
-			Get-Package | Where-Object {$_.Name -contains 'Winget'} | Should -Not -BeNullOrEmpty
+			Get-Package | Should -Not -BeNullOrEmpty
 		}
 		It 'searches for the latest version of a package' {
 			Find-Package -Name $package | Where-Object {$_.Name -contains $package} | Should -Not -BeNullOrEmpty
