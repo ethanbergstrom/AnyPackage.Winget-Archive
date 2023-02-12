@@ -41,28 +41,28 @@ Describe 'pipeline-based package installation and uninstallation' {
 
 Describe 'multi-source support' {
 	BeforeAll {
-		$altSourceName = 'AltWinGetSource'
-		$altSourceLocation = 'https://winget.azureedge.net/cache'
+		$altSource = 'AltWinGetSource'
+		$altLocation = 'https://winget.azureedge.net/cache'
 		$package = 'CPUID.HWMonitor'
 
-		Unregister-PackageSource -Name $altSourceName -ErrorAction SilentlyContinue
+		Unregister-PackageSource -Name $altSource -ErrorAction SilentlyContinue
 	}
 	AfterAll {
-		Unregister-PackageSource -Name $altSourceName -ErrorAction SilentlyContinue
+		Unregister-PackageSource -Name $altSource -ErrorAction SilentlyContinue
 	}
 
 	It 'registers an alternative package source' {
-		Register-PackageSource -Name $altSourceName -Location $altSourceLocation -Provider Winget -PassThru | Where-Object {$_.Name -eq $altSource} | Should -Not -BeNullOrEmpty
+		Register-PackageSource -Name $altSource -Location $altLocation -Provider Winget -PassThru | Where-Object {$_.Name -eq $altSource} | Should -Not -BeNullOrEmpty
 		Get-PackageSource | Where-Object {$_.Name -eq $altSource} | Should -Not -BeNullOrEmpty
 	}
 	It 'searches for and installs the latest version of a package from an alternate source' {
-		Find-Package -Name $package -source $altSourceName | Install-Package -PassThru | Where-Object {$_.Name -contains $package} | Should -Not -BeNullOrEmpty
+		Find-Package -Name $package -source $altSource | Install-Package -PassThru | Where-Object {$_.Name -contains $package} | Should -Not -BeNullOrEmpty
 	}
 	It 'finds and uninstalls a package installed from an alternate source' {
 		Get-Package -Name $package | Uninstall-Package -PassThru | Where-Object {$_.Name -contains $package} | Should -Not -BeNullOrEmpty
 	}
 	It 'unregisters an alternative package source' {
-		Unregister-PackageSource -Name $altSourceName -PassThru | Where-Object {$_.Name -eq $altSource} | Should -Not -BeNullOrEmpty
+		Unregister-PackageSource -Name $altSource -PassThru | Where-Object {$_.Name -eq $altSource} | Should -Not -BeNullOrEmpty
 		Get-PackageSource | Where-Object {$_.Name -eq $altSource} | Should -BeNullOrEmpty
 	}
 }
