@@ -45,7 +45,7 @@ function Find-WingetPackage {
 		# If we need to retrieve all versions, perform an additional query to get all available versions, and create a package object for each version
 		if ($Request.Version) {
 			$package = $_
-			$package | Cobalt\Get-WinGetPackageInfo -Versions -Source $selectedSource | Select-Object -Property @{
+			Cobalt\Get-WinGetPackageInfo -ID $package.ID -Versions -Source $selectedSource | Select-Object -Property @{
 				Name = 'ID'
 				Expression = {$package.ID}
 			},@{
