@@ -36,6 +36,9 @@ jobs:
         with:
           name: module
           path: C:\Users\runneradmin\Documents\PowerShell\Modules\AnyPackage.Winget\
+      - name: Install WinGet
+        shell: pwsh
+        run: Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/ethanbergstrom/Cobalt/master/Install-WinGet.ps1'))
       - name: Install Cobalt
         run: Install-Module Cobalt -Force
       - name: Install AnyPackage
