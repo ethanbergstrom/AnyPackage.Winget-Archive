@@ -9,33 +9,9 @@ Get-ChildItem $ScriptPath/private -Recurse -Filter '*.ps1' -File | ForEach-Objec
 	. $_.FullName
 }
 
-class InstallPackageDynamicParameters {
-	[Parameter()]
-	[switch]
-	$ParamsGlobal
-
-	[Parameter()]
-	[string]
-	$Parameters
-}
-
-class UninstallPackageDynamicParameters {
-	[Parameter()]
-	[switch]
-	$RemoveDependencies
-}
-
 [PackageProvider("Winget")]
 class WingetProvider : PackageProvider, IGetSource, ISetSource, IGetPackage, IFindPackage, IInstallPackage, IUninstallPackage {
 	WingetProvider() : base('070f2b8f-c7db-4566-9296-2f7cc9146bf0') { }
-
-	[object] GetDynamicParameters([string] $commandName) {
-		return $(switch ($commandName) {
-			'Install-Package' {[InstallPackageDynamicParameters]::new()}
-			'Uninstall-Package' {[UninstallPackageDynamicParameters]::new()}
-			Default {$null}
-		})
-	}
 
 	[void] GetSource([SourceRequest] $Request) {
 		Cobalt\Get-WingetSource | Where-Object {$_.Name -Like $Request.Name} | ForEach-Object {
@@ -68,22 +44,13 @@ class WingetProvider : PackageProvider, IGetSource, ISetSource, IGetPackage, IFi
 	}
 
 	[void] InstallPackage([PackageRequest] $Request) {
-		$WingetParams = @{
-			ParamsGlobal = $Request.DynamicParameters.ParamsGlobal
-			Parameters = $Request.DynamicParameters.Parameters
-		}
-
 		# Run the package request first through Find-WingetPackage to determine which source to use, and filter by any version requirements
-		Find-WingetPackage | Cobalt\Install-WingetPackage @WingetParams | Write-Package
+		Find-WingetPackage | Cobalt\Install-WingetPackage | Write-Package
 	}
 
 	[void] UninstallPackage([PackageRequest] $Request) {
-		$WingetParams = @{
-			RemoveDependencies = $Request.DynamicParameters.RemoveDependencies
-		}
-
 		# Run the package request first through Get-WingetPackage to filter by any version requirements
-		Get-WingetPackage | Cobalt\Uninstall-WingetPackage @WingetParams | Write-Package
+		Get-WingetPackage | Cobalt\Uninstall-WingetPackage | Write-Package
 	}
 }
 
