@@ -13,7 +13,7 @@ Describe 'basic package search operations' {
 		}
 
 		It 'gets a list of latest installed packages' {
-			Get-Package | Should -Not -BeNullOrEmpty
+			Get-Package | Where-Object {$_.Name -like 'Microsoft.DesktopAppInstaller*'} | Should -Not -BeNullOrEmpty
 		}
 		It 'searches for the latest version of a package' {
 			Find-Package -Name $package | Where-Object {$_.Name -contains $package} | Should -Not -BeNullOrEmpty
@@ -42,13 +42,15 @@ Describe 'pipeline-based package installation and uninstallation' {
 Describe 'multi-source support' {
 	BeforeAll {
 		$altSource = 'AltWinGetSource'
-		$altLocation = 'https://winget.azureedge.net/cache'
+		$altLocation = 'https://cdn.winget.microsoft.com/cache'
 		$package = 'CPUID.HWMonitor'
 
 		Unregister-PackageSource -Name $altSource -ErrorAction SilentlyContinue
 	}
 	AfterAll {
 		Unregister-PackageSource -Name $altSource -ErrorAction SilentlyContinue
+		# Apparently this is required to repair the corruption introduced with adding and removing an alias source
+		winget source reset --force
 	}
 
 	It 'registers an alternative package source' {
@@ -88,10 +90,10 @@ Describe 'version filters' {
 
 	Context 'minimum version' {
 		It 'searches for and silently installs a minimum package version' {
-			Find-Package -Name $package -Version $version | Install-Package -PassThru | Where-Object {$_.Name -contains $package -And $_.Version -ge $version} | Should -Not -BeNullOrEmpty
+			Find-Package -Name $package -Version "[$version,]" | Install-Package -PassThru | Where-Object {$_.Name -contains $package -And $_.Version -ge $version} | Should -Not -BeNullOrEmpty
 		}
 		It 'detects and silently uninstalls a minimum package version' {
-			Get-Package -Name $package -Version $version | UnInstall-Package -PassThru | Where-Object {$_.Name -contains $package -And $_.Version -ge $version} | Should -Not -BeNullOrEmpty
+			Get-Package -Name $package -Version "[$version,]" | UnInstall-Package -PassThru | Where-Object {$_.Name -contains $package -And $_.Version -ge $version} | Should -Not -BeNullOrEmpty
 		}
 	}
 
