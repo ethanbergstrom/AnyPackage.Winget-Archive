@@ -41,41 +41,21 @@ function Find-WingetPackage {
 
 	# Filter results by any name and version requirements
 	# The final results must be grouped by package name, showing the highest available version for install, to make the results easier to consume
-	Cobalt\Find-WinGetPackage @WinGetParams | ForEach-Object {
-		# If we need to retrieve all versions, perform an additional query to get all available versions, and create a package object for each version
-		if ($Request.Version) {
-			$package = $_
-			Cobalt\Get-WinGetPackageInfo -ID $package.ID -Versions -Source $selectedSource | Select-Object -Property @{
-				Name = 'ID'
-				Expression = {$package.ID}
-			},@{
-				Name = 'Version'
-				Expression = {$_}
-			},@{
-				Name = 'Source'
-				Expression = {$selectedSource}
-			}
-		} else {
-			$package = $_
-			# Winget doesn't return source information when source is specified, so we have to construct a fresh object here with the source information included
-			$package | Select-Object -Property @{
-				Name = 'ID'
-				Expression = {$_.ID}
-			},@{
-				Name = 'Version'
-				Expression = {$_.Version}
-			},@{
-				Name = 'Source'
-				Expression = {$selectedSource}
-			}
+	Cobalt\Find-WinGetPackage @WinGetParams | Where-Object {$Request.IsMatch($_.ID)} | ForEach-Object {
+		$candidate = $_
+
+		# Perform an additional query to get all available versions, and create a package object for each version
+		$version = Cobalt\Get-WinGetPackageInfo -ID $candidate.ID -Versions -Source $selectedSource | 
+						Where-Object {([NuGet.Versioning.VersionRange]$Request.Version).Satisfies($_)} |
+							Sort-Object -Descending | Select-Object -First 1
+
+		# Winget doesn't return source information when source is specified, so we have to construct a fresh object here with the source information included
+		$candidate | Select-Object -Property ID,@{
+			Name = 'Version'
+			Expression = {$version}
+		},@{
+			Name = 'Source'
+			Expression = {$selectedSource}
 		}
-	} | Where-Object {$Request.IsMatch($_.ID)} |
-			Where-Object {-Not $Request.Version -Or (([NuGet.Versioning.VersionRange]$Request.Version).Satisfies($_.Version))} | Group-Object ID |
-				Select-Object ID,@{
-						Name = 'Version'
-						Expression = {$_.Group | Sort-Object -Descending Version | Select-Object -First 1 -ExpandProperty Version}
-					},@{
-						Name = 'Source'
-						Expression = {$selectedSource}
-					}
+	}
 }
