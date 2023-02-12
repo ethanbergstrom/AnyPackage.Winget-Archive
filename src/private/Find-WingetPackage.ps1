@@ -53,7 +53,7 @@ function Find-WingetPackage {
 				Expression = {$_}
 			},@{
 				Name = 'Source'
-				Expression = {$package.Source}
+				Expression = {$selectedSource}
 			}
 		} else {
 			$package = $_
