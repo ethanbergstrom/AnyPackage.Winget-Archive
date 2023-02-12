@@ -109,7 +109,7 @@ Describe "error handling" {
 	Context 'ambiguous sources' {
 		BeforeAll {
 			$package = 'CPUID.HWMonitor'
-			$defaultSource = 'Winget'
+			$defaultSource = 'winget'
 			$WingetSource = Get-PackageSource -name $defaultSource | Select-Object -ExpandProperty Location
 			Get-PackageSource | Unregister-PackageSource
 			@('test1','test2') | Register-PackageSource -Location $WingetSource -Provider Winget
