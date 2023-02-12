@@ -62,7 +62,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: Winget-logs
-          path: C:\ProgramDaata\Winget\logs\
+          path: C:\Users\runneradmin\AppData\Local\Packages\Microsoft.DesktopAppInstaller*\LocalState\DiagOutputDir\
   Sign:
     needs: Test
     if: github.event_name == 'release' && github.event.action == 'published'
