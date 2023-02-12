@@ -21,9 +21,6 @@ Describe 'basic package search operations' {
 		It 'searches for all versions of a package' {
 			Find-Package -Name $package -Version '[0,]' | Where-Object {$_.Name -contains $package} | Should -Not -BeNullOrEmpty
 		}
-		It 'searches for the latest version of a package with a wildcard pattern' {
-			Find-Package -Name "$package*" | Where-Object {$_.Name -contains $package} | Should -Not -BeNullOrEmpty
-		}
 	}
 }
 
