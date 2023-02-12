@@ -43,6 +43,8 @@ jobs:
         run: Install-Module Cobalt -Force
       - name: Install AnyPackage
         run: Install-Module AnyPackage -Force -AllowClobber
+      - name: List installed packages
+        run: Get-WinGetPackage
       - name: Test with Pester
         run: |
           Invoke-Pester -Configuration (New-PesterConfiguration -Hashtable @{
