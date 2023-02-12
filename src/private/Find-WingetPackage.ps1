@@ -5,6 +5,8 @@ function Find-WingetPackage {
 		$Request = $Request
 	)
 
+	$DefaultPackageSource = 'WinGet'
+
 	[array]$RegisteredPackageSources = Cobalt\Get-WingetSource
 
 	$selectedSource = $(
