@@ -56,7 +56,17 @@ function Find-WingetPackage {
 				Expression = {$package.Source}
 			}
 		} else {
-			$_
+			# Winget doesn't return source information when source is specified, so we have to construct a fresh object here with the source information included
+			Select-Object -Property @{
+				Name = 'ID'
+				Expression = {$_.ID}
+			},@{
+				Name = 'Version'
+				Expression = {$_.Version}
+			},@{
+				Name = 'Source'
+				Expression = {$selectedSource}
+			}
 		}
 	} | Where-Object {$Request.IsMatch($_.ID)} |
 			Where-Object {-Not $Request.Version -Or (([NuGet.Versioning.VersionRange]$Request.Version).Satisfies($_.Version))}
