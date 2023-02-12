@@ -1,0 +1,68 @@
+function Find-WingetPackage {
+	param (
+		[Parameter()]
+		[PackageRequest]
+		$Request = $Request
+	)
+
+	[array]$RegisteredPackageSources = Cobalt\Get-WingetSource
+
+	$selectedSource = $(
+		if ($Request.Source) {
+			# Finding the matched package sources from the registered ones
+			if ($RegisteredPackageSources.Name -eq $Request.Source) {
+				# Found the matched registered source
+				$Request.Source
+			} else {
+				throw 'The specified source is not registered with the package provider.'
+			}
+		} else {
+			# User did not specify a source. Now what?
+			if ($RegisteredPackageSources.Count -eq 1) {
+				# If no source name is specified and only one source is available, use that source
+				$RegisteredPackageSources[0].Name
+			} elseif ($RegisteredPackageSources.Name -eq $DefaultPackageSource) {
+				# If multiple sources are avaiable but none specified, use the default package source if present
+				$DefaultPackageSource
+			} else {
+				# If the default assumed source is not present and no source specified, we can't guess what the user wants - throw an exception
+				throw 'Multiple non-default sources are defined, but no source was specified. Source could not be determined.'
+			}
+		}
+	)
+
+	$WingetParams = @{
+		ID = $Request.Name
+		Source = $selectedSource
+		Exact = $true
+	}
+
+	# Filter results by any name and version requirements
+	# The final results must be grouped by package name, showing the highest available version for install, to make the results easier to consume
+	Cobalt\Find-WinGetPackage @WinGetParams | ForEach-Object {
+		# If we need to retrieve all versions, perform an additional query to get all available versions, and create a package object for each version
+		if ($Request.Version) {
+			$package = $_
+			$package | Cobalt/Get-WinGetPackageInfo -Versions -Source $selectedSource | Select-Object -Property @{
+				Name = 'ID'
+				Expression = {$package.ID}
+			},@{
+				Name = 'Version'
+				Expression = {$_}
+			},@{
+				Name = 'Source'
+				Expression = {$package.Source}
+			}
+		} else {
+			$_
+		}
+	} | Where-Object {$Request.IsMatch($_.ID)} |
+			Where-Object {-Not $Request.Version -Or (([NuGet.Versioning.VersionRange]$Request.Version).Satisfies($_.Version))} | Group-Object ID |
+				Select-Object ID,@{
+						Name = 'Version'
+						Expression = {$_.Group | Sort-Object -Descending Version | Select-Object -First 1 -ExpandProperty Version}
+					},@{
+						Name = 'Source'
+						Expression = {$selectedSource}
+					}
+}
