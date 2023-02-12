@@ -38,13 +38,13 @@ class WingetProvider : PackageProvider, IGetSource, ISetSource, IGetPackage, IFi
 	}
 
 	[void] GetSource([SourceRequest] $Request) {
-		Cobalt\Get-WingetSource | Where-Object {$_.Disabled -eq 'False'} | Where-Object {$_.Name -Like $Request.Name} | ForEach-Object {
-			$Request.WriteSource($_.Name, $_.Location, $true)
+		Cobalt\Get-WingetSource | Where-Object {$_.Name -Like $Request.Name} | ForEach-Object {
+			$Request.WriteSource($_.Name, $_.Arg, $true)
 		}
 	}
 
 	[void] RegisterSource([SourceRequest] $Request) {
-		Cobalt\Register-WingetSource -Name $Request.Name -Location $Request.Location
+		Cobalt\Register-WingetSource -Name $Request.Name -Argument $Request.Location
 		# Winget doesn't return anything after source operations, so we make up our own output object
 		$Request.WriteSource($Request.Name, $Request.Location.TrimEnd("\"), $Request.Trusted)
 	}

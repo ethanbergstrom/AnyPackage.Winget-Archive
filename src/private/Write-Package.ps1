@@ -13,7 +13,7 @@ function Write-Package {
 		foreach ($package in $InputObject) {
 			if ($package.Source) {
 				# If source information is provided, construct a source object for inclusion in the results
-				$source = $Request.NewSourceInfo($package.Source,(Cobalt\Get-WingetSource | Where-Object Name -EQ $package.Source | Select-Object -ExpandProperty Location),$true)
+				$source = $Request.NewSourceInfo($package.Source,(Cobalt\Get-WingetSource | Where-Object Name -EQ $package.Source | Select-Object -ExpandProperty Arg),$true)
 				$Request.WritePackage($package.ID, $package.Version, '', $source)
 			} else {
 				$Request.WritePackage($package.ID, $package.Version)
